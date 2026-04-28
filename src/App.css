@@ -1,38 +1,101 @@
-.App {
-  text-align: center;
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Page padding — mobile collapses */
+.hc-page {
+  padding: 32px 20px 80px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Form card padding */
+.hc-form-card {
+  padding: 28px 32px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* 2-column input grid, goes 1-column on small screens */
+.hc-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-.App-link {
-  color: #61dafb;
+/* Input focus ring */
+.hc-input {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.hc-input:focus {
+  outline: none;
+  border-color: #CC0000 !important;
+  box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.12);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Submit button hover */
+.hc-btn {
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.hc-btn:hover {
+  background-color: #A80000 !important;
+}
+.hc-btn:active {
+  background-color: #8C0000 !important;
+  transform: translateY(1px);
+}
+
+/* Resource card — lift + red border on hover */
+.hc-resource-link {
+  transition: transform 0.15s ease;
+  display: block;
+  text-decoration: none;
+}
+.hc-resource-link:hover {
+  transform: translateY(-2px);
+}
+.hc-resource-inner {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.hc-resource-link:hover .hc-resource-inner {
+  border-color: #CC0000 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Program card "learn more" link */
+.hc-program-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #CC0000;
+  text-decoration: none;
+  transition: text-decoration 0.1s;
+}
+.hc-program-link:hover {
+  text-decoration: underline;
+}
+
+/* AI loading pulse */
+@keyframes hc-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+.hc-loading {
+  animation: hc-pulse 1.6s ease-in-out infinite;
+}
+
+/* Readiness score progress bar track */
+.hc-progress-track {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+.hc-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+/* ── Mobile ── */
+@media (max-width: 580px) {
+  .hc-page      { padding: 20px 14px 60px; }
+  .hc-form-card { padding: 20px 18px; }
+  .hc-input-grid { grid-template-columns: 1fr; }
 }

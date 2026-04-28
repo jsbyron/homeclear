@@ -1,99 +1,82 @@
 import React, { useState } from "react";
+import "./App.css";
+import Header from "./components/Header";
+import InputForm from "./components/InputForm";
+import ResultsDashboard from "./components/ResultsDashboard";
+import AssistancePrograms from "./components/AssistancePrograms";
+import ResourcesSection from "./components/ResourcesSection";
+import { calculate } from "./calculator";
 
-function App() {
+export default function App() {
   const [formData, setFormData] = useState({
     grossIncome: "",
     savings: "",
     monthlyDebts: "",
     targetPrice: "",
   });
+  const [results, setResults] = useState(null);
+  const [aiSummary, setAiSummary] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Form submitted! Calculator coming soon.");
+    const calcResults = calculate(formData);
+    setResults(calcResults);
+    setAiSummary(null);
+    setAiError(null);
+    setAiLoading(true);
+
+    setTimeout(() => {
+      document.getElementById("results-section")?.scrollIntoView({ behavior: "smooth" });
+    }, 50);
+
+    try {
+      const res = await fetch("/api/summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ formData, results: calcResults }),
+      });
+      if (!res.ok) throw new Error("server error");
+      const data = await res.json();
+      setAiSummary(data.summary);
+    } catch {
+      setAiError("AI summary unavailable — make sure the server is running with a valid API key.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "40px auto", fontFamily: "Arial" }}>
-      <h1 style={{ color: "#CC0000" }}>Homeclear</h1>
-      <h2>First-Time Homebuyer Readiness Assessment</h2>
-      <p>Enter your financial information below to find out how ready you are to buy a home.</p>
-
-      <form onSubmit={handleSubmit}>
-
-        <div style={{ marginBottom: "20px" }}>
-          <label><strong>Gross Monthly Income ($)</strong></label>
-          <br />
-          <input
-            type="number"
-            name="grossIncome"
-            value={formData.grossIncome}
-            onChange={handleChange}
-            placeholder="e.g. 5000"
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <label><strong>Current Savings / Assets ($)</strong></label>
-          <br />
-          <input
-            type="number"
-            name="savings"
-            value={formData.savings}
-            onChange={handleChange}
-            placeholder="e.g. 20000"
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <label><strong>Total Monthly Debt Obligations ($)</strong></label>
-          <br />
-          <input
-            type="number"
-            name="monthlyDebts"
-            value={formData.monthlyDebts}
-            onChange={handleChange}
-            placeholder="e.g. 500"
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "20px" }}>
-          <label><strong>Target Home Purchase Price ($)</strong></label>
-          <br />
-          <input
-            type="number"
-            name="targetPrice"
-            value={formData.targetPrice}
-            onChange={handleChange}
-            placeholder="e.g. 300000"
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            backgroundColor: "#CC0000",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "16px",
-          }}
-        >
-          Check My Readiness
-        </button>
-
-      </form>
+    <div className="hc-page" style={{ maxWidth: "820px", margin: "0 auto" }}>
+      <Header />
+      <InputForm formData={formData} onChange={handleChange} onSubmit={handleSubmit} />
+      {results && (
+        <ResultsDashboard
+          results={results}
+          aiSummary={aiSummary}
+          aiLoading={aiLoading}
+          aiError={aiError}
+        />
+      )}
+      <AssistancePrograms results={results} />
+      <ResourcesSection />
+      <div
+        style={{
+          marginTop: "52px",
+          paddingTop: "20px",
+          borderTop: "1px solid #E5E7EB",
+          textAlign: "center",
+          fontSize: "12px",
+          color: "#9CA3AF",
+        }}
+      >
+        Homeclear · Estimates are for educational purposes only and do not constitute financial or legal advice.
+      </div>
     </div>
   );
 }
-
-export default App;
