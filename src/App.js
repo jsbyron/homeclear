@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import InputForm from "./components/InputForm";
@@ -18,6 +18,14 @@ export default function App() {
   const [aiSummary, setAiSummary] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
+  const [rateInfo, setRateInfo] = useState({ rate: 6.85, source: "fallback" });
+
+  useEffect(() => {
+    fetch("/api/mortgage-rate")
+      .then((r) => r.json())
+      .then((data) => setRateInfo(data))
+      .catch(() => {});
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,7 +33,7 @@ export default function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const calcResults = calculate(formData);
+    const calcResults = calculate({ ...formData, annualRate: rateInfo.rate / 100 });
     setResults(calcResults);
     setAiSummary(null);
     setAiError(null);
@@ -61,6 +69,7 @@ export default function App() {
           aiSummary={aiSummary}
           aiLoading={aiLoading}
           aiError={aiError}
+          rateInfo={rateInfo}
         />
       )}
       <AssistancePrograms results={results} />

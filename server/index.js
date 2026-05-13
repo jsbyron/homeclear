@@ -7,6 +7,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const FALLBACK_RATE = 6.85;
+
+app.get("/api/mortgage-rate", async (req, res) => {
+  const apiKey = process.env.FRED_API_KEY;
+  if (apiKey) {
+    try {
+      const url =
+        `https://api.stlouisfed.org/fred/series/observations` +
+        `?series_id=MORTGAGE30US&api_key=${apiKey}&limit=1&sort_order=desc&file_type=json`;
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        const obs = data.observations?.[0];
+        if (obs && obs.value !== "." && !isNaN(parseFloat(obs.value))) {
+          return res.json({ rate: parseFloat(obs.value), source: "fred", asOf: obs.date });
+        }
+      }
+    } catch (err) {
+      console.error("FRED API error:", err.message);
+    }
+  }
+  res.json({ rate: FALLBACK_RATE, source: "fallback" });
+});
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const SYSTEM_PROMPT = `You are a friendly, knowledgeable real estate advisor helping first-time homebuyers understand their financial readiness. When given a buyer's financial data and Homeclear assessment results, write a 3–4 sentence plain-English summary that: (1) states clearly whether they are ready, nearly ready, or need more preparation, (2) identifies their single biggest strength and single biggest challenge, and (3) gives one specific, actionable next step they can take this month. Write in a warm, encouraging but honest tone. Use conversational paragraph form — no bullet points, no headers, no markdown. Keep it under 120 words.`;

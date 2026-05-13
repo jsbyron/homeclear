@@ -13,7 +13,7 @@ export const PROGRAMS = [
       "Mortgage insurance premium (MIP) required",
       "Must be primary residence",
     ],
-    link: "https://www.hud.gov/buying/loans",
+    link: "https://www.hud.gov/fha",
     linkLabel: "Learn more at HUD.gov",
   },
   {
@@ -64,7 +64,7 @@ export const PROGRAMS = [
       "May require a homebuyer education course",
       "Some are forgivable loans or outright grants",
     ],
-    link: "https://www.hud.gov/buying/localbuying",
+    link: "https://www.hud.gov/states",
     linkLabel: "Find programs in your state →",
   },
 ];

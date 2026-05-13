@@ -1,18 +1,18 @@
-const RATE_MONTHLY = 0.07 / 12;
 const LOAN_TERM = 360;
 
-function calcMortgage(loanAmount) {
+function calcMortgage(loanAmount, rateMonthly) {
   return (
-    (loanAmount * (RATE_MONTHLY * Math.pow(1 + RATE_MONTHLY, LOAN_TERM))) /
-    (Math.pow(1 + RATE_MONTHLY, LOAN_TERM) - 1)
+    (loanAmount * (rateMonthly * Math.pow(1 + rateMonthly, LOAN_TERM))) /
+    (Math.pow(1 + rateMonthly, LOAN_TERM) - 1)
   );
 }
 
-export function calculate({ grossIncome, savings, monthlyDebts, targetPrice }) {
+export function calculate({ grossIncome, savings, monthlyDebts, targetPrice, annualRate = 0.07 }) {
   const income = parseFloat(grossIncome);
   const saved = parseFloat(savings);
   const debts = parseFloat(monthlyDebts);
   const price = parseFloat(targetPrice);
+  const rateMonthly = annualRate / 12;
 
   const dp20 = price * 0.2;
   const dp35 = price * 0.035;
@@ -21,7 +21,7 @@ export function calculate({ grossIncome, savings, monthlyDebts, targetPrice }) {
   const loanAmount = price - actualDP;
   const dpPct = (actualDP / price) * 100;
 
-  const mortgage = calcMortgage(loanAmount);
+  const mortgage = calcMortgage(loanAmount, rateMonthly);
   const taxes = (price * 0.012) / 12;
   const insurance = (price * 0.005) / 12;
   const pmi = dpPct < 20 ? (loanAmount * 0.008) / 12 : 0;
@@ -69,5 +69,6 @@ export function calculate({ grossIncome, savings, monthlyDebts, targetPrice }) {
     monthlySavings: monthlySavings.toFixed(0),
     gap20Num: gap20,
     gap35Num: gap35,
+    annualRate,
   };
 }
